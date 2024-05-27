@@ -34,8 +34,12 @@ const registerUser = async (req, res) => {
       verificationCode
     });
 
+    const subject = "Email comfirmation code";
+    const description = "Copy code and paste it in verification code field provided on registration";
+    const intro = "Your Account have been created, copy the code to verify your account!"
+
     // Send email to user to confirm registration
-    SendEmail(email, verificationCode);
+    SendEmail(email, verificationCode, subject, description, intro, fullName);
 
     await user.save();
     res.status(201).json({ message: 'User registered successfully.', user });

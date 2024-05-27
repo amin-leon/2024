@@ -7,7 +7,7 @@ const EMAIL = process.env.EMAIL
 const PASSWORD = process.env.PASSWORD
 
 
-const SendEmail = (email, verificationCode) =>{
+const SendEmail = (email, verificationCode, subject, description, intro, name) =>{
     let config = {
         service : 'gmail',
         auth : {
@@ -30,13 +30,13 @@ const SendEmail = (email, verificationCode) =>{
   // Email contents or body
   let response = {
     body: {
-        name : "Leon",
-        intro: "Your Account have been created, copy the code to verify your account!",
+        name : name,
+        intro: intro,
         table : {
             data : [
                 {
-                    code : verificationCode,
-                    description: "Verification code",
+                    data : verificationCode,
+                    description: description,
                 }
             ]
         },
@@ -50,7 +50,7 @@ const SendEmail = (email, verificationCode) =>{
     let message = {
       from : EMAIL,
       to : email,
-      subject: "Comfirm registration",
+      subject: subject,
       html: mail
     }
 

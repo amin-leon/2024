@@ -6,6 +6,7 @@ import { createNotification } from '../helpers/Nofication.js';
 import Feedback from '../models/Feedback.js';
 import Notification from '../models/Notification.js';
 import Docs from '../models/SharedDocs.js';
+import SendEmail from '../helpers/sendEmail.js';
 
 // Create new issue
 const createIssue = async (req, res) => {
@@ -486,6 +487,9 @@ const closeIssue = async (req, res) => {
       return res.status(404).json({ error: 'Issue not found' });
     }
 
+    // find owner
+    const user = await User.findById(reporterId);
+
     issue.feedback.push(req.body);
     issue.status = 'closed';
     const updatedIssue = await issue.save();
@@ -495,6 +499,13 @@ const closeIssue = async (req, res) => {
     await createNotification('Issue closed', 'Your issue is closed', reporterId, 'http://localhost:3000/Home/issue-page', issueId)
 
     await CodeRequest.findOneAndDelete(reporterId);
+
+    const subject = "Issue is closed";
+    const description = req.body;
+    const intro = "Your Issue is closed due to same reasons, Login to system replay to it or claim"
+
+    // Send email to user to confirm registration
+    SendEmail(user.email, issueId, subject, description, intro, user.fullName);
   } catch (error) {
     console.log('Error closing issue:', error);
     res.status(500).json({ error: 'Internal Server Error' });

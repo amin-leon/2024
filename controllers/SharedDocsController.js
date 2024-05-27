@@ -40,7 +40,7 @@ const getDocumentsByIssueId = async (req, res) => {
     }
 };
 
-// upload docs
+//upload docs
 const uploadDocument = async (req, res) => {
     try {
         const { issueId, posterUser } = req.body;
@@ -58,7 +58,6 @@ const uploadDocument = async (req, res) => {
 
 
         const { assignedTo, reporter } = issue;
-        console.log("Heeelloooooooooooooooooooooooooooooooo", reporter, assignedTo)
 
 
         // Determine the recipient of the notification
