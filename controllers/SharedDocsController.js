@@ -1,21 +1,6 @@
 import Docs from '../models/SharedDocs.js';
-
-// Controller for uploading a document
-const uploadDocument = async (req, res) => {
-    try {
-        const { issueId, posterUser } = req.body;
-        const document = req.file.path;
-
-        const newDoc = new Docs({ issueId, posterUser, document });
-        await newDoc.save();
-
-
-        res.status(201).json({ message: 'Document uploaded successfully', newDoc });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-};
-
+import Issue from '../models/Issue.js';
+import { createNotification } from '../helpers/Nofication.js'
 
 // Controller for deleting a document
 const deleteDocument = async (req, res) => {
@@ -55,10 +40,60 @@ const getDocumentsByIssueId = async (req, res) => {
     }
 };
 
+// upload docs
+const uploadDocument = async (req, res) => {
+    try {
+        const { issueId, posterUser } = req.body;
+        const document = req.file.path;
+
+
+        const newDoc = new Docs({ issueId, posterUser, document });
+        await newDoc.save();
+
+        // Retrieve the issue details
+        const issue = await Issue.findById(issueId);
+        if (!issue) {
+            return res.status(404).json({ message: 'Issue not found' });
+        }
+
+
+        const { assignedTo, reporter } = issue;
+        console.log("Heeelloooooooooooooooooooooooooooooooo", reporter, assignedTo)
+
+
+        // Determine the recipient of the notification
+        let recipientId;
+        let content;
+
+        if (posterUser === assignedTo.toString()) {
+            recipientId = reporter;
+            content = 'A new document has been uploaded to your issue.';
+        } else if (posterUser === reporter.toString()) {
+            recipientId = assignedTo;
+            content = 'A new document has been uploaded by the requester.';
+        } else {
+            return res.status(400).json({ message: 'Invalid poster user' , posterUser, assignedTo});
+        }
+
+
+        // Send notification
+        const notificationType = 'Document Uploaded';
+        const link = `/documents/${newDoc._id}`;
+        const relatedIssue = issueId;
+
+        await createNotification(notificationType, content, recipientId, link, relatedIssue);
+
+        res.status(201).json({ message: 'Document uploaded successfully', newDoc });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
 export default {
     uploadDocument,
     deleteDocument,
     getAllDocuments,
-    getDocumentsByIssueId
+    getDocumentsByIssueId,
+    uploadDocument
 };
 
