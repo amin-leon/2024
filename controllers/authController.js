@@ -1,10 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
-
-
-
-
+import generateRandomPassword from '../helpers/passwordGenerator.js'
 import { generateVerificationCode } from '../VerificationCode.js';
 import SendEmail from '../helpers/sendEmail.js';
 
@@ -48,6 +45,34 @@ const registerUser = async (req, res) => {
     res.status(500).json({ error: 'Could not register user. Please try again later.' });
   }
 };
+
+// forget password
+const forgetPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const newPassword = generateRandomPassword();
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    // Send email to user with the new password
+    SendEmail(email, `Your new password is: ${newPassword}`);
+
+    res.status(200).json({ message: 'A new password has been sent to your email.' });
+
+  } catch (error) {
+    console.error('Error during password reset:', error);
+    res.status(500).json({ error: 'Could not reset password. Please try again later.' });
+  }
+};
+
 
 
 // Update profile picture
@@ -453,5 +478,6 @@ export default {
   activateAccount,
   deactivateAccount,
   updateProfileImage,
-  VerifyCode
+  VerifyCode,
+  forgetPassword
 };

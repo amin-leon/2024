@@ -29,6 +29,7 @@ router.put('/activate/:userId', authController.activateAccount);
 router.put('/deactivate/:userId', authController.deactivateAccount);
 router.put('/update-profile-image/:userId', upload.single('profileImage'), authController.updateProfileImage);
 router.put('/verifycode/:verificationCode/:email', authController.VerifyCode);
+router.post('/forget-password', authController.forgetPassword);
 
 
 
