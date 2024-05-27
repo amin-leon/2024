@@ -105,7 +105,7 @@ const loginUser = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Invalid credentials.' });
+      return res.status(401).json({ error: 'Invalid Password.' });
     }
 
     if (user.approvalStatus === 'pending' || user.accountStatus === 'inactive') {
@@ -121,7 +121,7 @@ const loginUser = async (req, res) => {
     return res.json({ message: 'Login successful.', token });
 
   } catch (error) {
-    console.error('Login failed:', error);
+    console.log('Login failed:', error);
     return res.status(500).json({ error: 'Could not login.' });
   }
 };
