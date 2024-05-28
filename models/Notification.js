@@ -8,6 +8,7 @@ const notificationSchema = new mongoose.Schema({
   recipient: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   dateSent: { type: Date, default: Date.now },
   link: {type: String},
+  staffPosition: {type: String},
   isRead: { type: Boolean, default: false },
   relatedIssue: { type: mongoose.Schema.Types.ObjectId, ref: 'Issue' }
 });

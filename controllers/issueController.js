@@ -110,7 +110,7 @@ const deleteAttachment = async (req, res) => {
 // Assign issue to Staff.
 const updateAssignedTo = async (req, res) => {
   const { issueId } = req.params;
-  const { assignedTo, status, senderId, priority } = req.body;
+  const { assignedTo, status, senderId, priority, staffPosition } = req.body;
 
   try {
     const issue = await Issue.findByIdAndUpdate(issueId, { assignedTo, status, priority }, { new: true });
@@ -130,7 +130,7 @@ const updateAssignedTo = async (req, res) => {
       await createNotification('Issue is assigned', ' New Issue is assigned to you', assignedTo, 'http://localhost:3000/Home/staff-issue-page',issue._id );
 
     }
-    await createNotification('Issue is assigned', ' Your Issue is assigned to staff', senderId, 'http://localhost:3000/Home/issue-page',issue._id );
+    await createNotification('Issue is assigned', `Your Issue is assigned to ${staffPosition} office`, senderId, 'http://localhost:3000/Home/issue-page',issue._id );
 
     res.status(200).json(issue);
   } catch (error) {
@@ -501,8 +501,8 @@ const closeIssue = async (req, res) => {
     await CodeRequest.findOneAndDelete(reporterId);
 
     const subject = "Issue is closed";
-    const description = req.body;
-    const intro = "Your Issue is closed due to same reasons, Login to system replay to it or claim"
+    const description = req.body.text;
+    const intro = "Your Issue is closed due to same reasons, Check feedback down:"
 
     // Send email to user to confirm registration
     SendEmail(user.email, issueId, subject, description, intro, user.fullName);
